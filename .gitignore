@@ -28,6 +28,9 @@
 *.so.*
 *.dylib
 
+#directories
+out
+
 # Executables
 *.exe
 *.out
@@ -35,6 +38,7 @@
 *.i*86
 *.x86_64
 *.hex
+lanParty
 
 # Debug files
 *.dSYM/
