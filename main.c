@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <string.h>
+#include "src/list.h"
+#include "src/parser.h"
+
 #define READ_ONLY "r"
 #define CREATE_FILE "w"
 
@@ -26,19 +30,23 @@ int main(int argc, char* argv[]) {
         return -1;
     } 
 
-    //verifica daca pot citi din cerinte si date 
-    char foobar[100];
-    char foobar2[100];
-    fread(foobar, sizeof(char), sizeof(foobar), cerinte);
-    fread(foobar2, sizeof(char), sizeof(foobar2), date);
+    fseek(date, 0, SEEK_END);
+    size_t date_length = ftell(date);
+    fseek(date, 0, SEEK_SET);
 
-    /* puts(foobar); */
-    /* puts(foobar2); */
+    char teamsBuffer[date_length + 1];
+    memset(teamsBuffer, 0, sizeof(teamsBuffer));
+    char cerinteBuffer[10];
+    fread(cerinteBuffer, sizeof(char), sizeof(cerinteBuffer), cerinte);
+    fread(teamsBuffer, sizeof(char), sizeof(teamsBuffer), date);
+
+
+    parse_data(teamsBuffer, 0, 0, 0);
+    
 
     /* do stuff
      * do more stuff
      */
-    
 
 
     fclose(cerinte);
