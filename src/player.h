@@ -9,4 +9,8 @@ struct Player {
 struct Team {
     char *name;
     struct Player *players;
+    size_t teamSize;
 };
+
+void freePlayer(struct Player *);
+void freeTeam(struct Team *);

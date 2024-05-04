@@ -4,7 +4,7 @@
 #include "list.h"
 
 int addToList(struct Node **head, void *data, size_t dataSize) {
-    struct Node *newNode = malloc(sizeof(struct Node));
+    struct Node *newNode = calloc(sizeof(struct Node), 1);
     if (newNode == NULL) {
         fprintf(stderr, "malloc failed!\n");
         return 1;

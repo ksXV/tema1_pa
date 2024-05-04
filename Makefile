@@ -5,6 +5,7 @@ all: final
 
 test: clean final
 	./$(TARGET) ./date/t1/c.in ./date/t1/d.in ./result.out
+	make clean
 
 final: 
 	$(CC) $(CFLAGS) -o $(TARGET) $(shell find . -name '*.c')

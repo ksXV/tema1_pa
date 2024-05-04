@@ -2,6 +2,7 @@
 #include <string.h>
 #include "src/list.h"
 #include "src/parser.h"
+#include "src/magic.h"
 
 #define READ_ONLY "r"
 #define CREATE_FILE "w"
@@ -41,13 +42,7 @@ int main(int argc, char* argv[]) {
     fread(teamsBuffer, sizeof(char), sizeof(teamsBuffer), date);
 
 
-    parse_data(teamsBuffer, 0, 0, 0);
-    
-
-    /* do stuff
-     * do more stuff
-     */
-
+    handleRequirements(parseData(teamsBuffer), parseReq(cerinteBuffer), result);
 
     fclose(cerinte);
     fclose(date);

@@ -1,2 +1,3 @@
-#include <string.h>
-void parse_data(char *, size_t, char *, size_t);
+struct Node *parseData(char *);
+int *parseReq(char *);
+
