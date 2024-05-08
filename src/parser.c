@@ -11,9 +11,11 @@
 
 void debug_printTeams(struct Node *teams);
 
-struct Node *parseData(char *data) {
+struct Node *parseData(char *data, uint *totalTeams) {
   assert(data != NULL);
+  assert(totalTeams != NULL);
   char *p = strtok(data, END_OF_LINE_WINDOWS);
+  *totalTeams = atoi(p);
 
   int playerIndex = 0;
 
@@ -28,7 +30,6 @@ struct Node *parseData(char *data) {
       playerIndex = 0;
 
       if (teamSize <= 9) {
-        // include the whitespace
         positionsToJump = 2;
       } else {
         positionsToJump = 3;
@@ -70,6 +71,7 @@ struct Node *parseData(char *data) {
               checkForDigit - checkForWhiteSpace - 1);
       uint points = atoi(checkForDigit);
       currentPlayer->points = points;
+      currentTeam->totalPoints += points;
 
       playerIndex++;
       goto getNextLine;
@@ -78,7 +80,7 @@ struct Node *parseData(char *data) {
   getNextLine:
     p = strtok(NULL, END_OF_LINE_WINDOWS);
   }
-  debug_printTeams(teams);
+  /* debug_printTeams(teams); */
 
   return teams;
 }
@@ -94,10 +96,10 @@ int* parseReq(char *req) {
         p = strtok(NULL, " ");
     }
 
-    for (int i = 0; i < 5; i++) {
-        printf("%d ", requirements[i]);
-    }
-    putchar('\n');
+    /* for (int i = 0; i < 5; i++) { */
+    /*     printf("%d ", requirements[i]); */
+    /* } */
+    /* putchar('\n'); */
 
     return requirements;
 }

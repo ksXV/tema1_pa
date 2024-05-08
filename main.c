@@ -42,7 +42,9 @@ int main(int argc, char* argv[]) {
     fread(teamsBuffer, sizeof(char), sizeof(teamsBuffer), date);
 
 
-    handleRequirements(parseData(teamsBuffer), parseReq(cerinteBuffer), result);
+    uint totalTeams = 0;
+    struct Node *teams = parseData(teamsBuffer, &totalTeams);
+    handleRequirements(teams, parseReq(cerinteBuffer), result, totalTeams);
 
     fclose(cerinte);
     fclose(date);

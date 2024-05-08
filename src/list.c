@@ -1,7 +1,18 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "list.h"
+#include "player.h"
+
+void freeNode(struct Node *item) {
+    if (item->data) {
+        free(item->data);
+        item->data = 0;
+    }
+    free(item);
+    item = 0;
+}
 
 int addToList(struct Node **head, void *data, size_t dataSize) {
     struct Node *newNode = calloc(sizeof(struct Node), 1);
@@ -36,6 +47,26 @@ void printList(struct Node *head) {
     printf("%p\n", head);
 }
 
-void *popFromList(struct Node *head) {
-    return NULL;
+void removeFromList(struct Node **head, struct Node *item) {
+    assert(head != NULL);
+    assert(item != NULL);
+    if (*head == NULL) return;
+    if (*head == item) {
+        struct Node *next = (*head)->next;
+        freeNode(*head);
+        *head = next;
+        return;
+    }
+    struct Node *curent = *head;
+    while (curent && curent->next != item) {
+        /* printf("%p %p\n", curent, item); */
+        curent = curent->next;
+    }
+
+    struct Node *nodeToDelete = curent->next;
+
+    curent->next = nodeToDelete->next;
+    freeNode(nodeToDelete);
+    nodeToDelete=0;
+    return;
 };

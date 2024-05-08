@@ -10,6 +10,7 @@ struct Team {
     char *name;
     struct Player *players;
     size_t teamSize;
+    uint totalPoints;
 };
 
 void freePlayer(struct Player *);
