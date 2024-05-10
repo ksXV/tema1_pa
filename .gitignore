@@ -30,6 +30,7 @@
 
 #directories
 out
+*.out
 
 # Executables
 *.exe

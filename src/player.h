@@ -13,5 +13,10 @@ struct Team {
     uint totalPoints;
 };
 
-void freePlayer(struct Player *);
-void freeTeam(struct Team *);
+struct Match {
+    struct Team *teamOne;
+    struct Team *teamTwo;
+};
+
+void freePlayer(void *);
+void freeTeam(void *);

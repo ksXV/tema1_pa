@@ -62,6 +62,7 @@ void removeFromList(struct Node **head, struct Node *item) {
         /* printf("%p %p\n", curent, item); */
         curent = curent->next;
     }
+    assert(curent != NULL);
 
     struct Node *nodeToDelete = curent->next;
 

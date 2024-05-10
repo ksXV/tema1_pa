@@ -65,7 +65,7 @@ struct Node *parseData(char *data, uint *totalTeams) {
       while (!isdigit(*checkForDigit))
         checkForDigit++;
       currentPlayer->secondName =
-          calloc(sizeof(char), (checkForWhiteSpace - p + 1));
+          calloc(sizeof(char), (checkForDigit - checkForWhiteSpace));
       assert(currentPlayer->secondName != NULL);
       memmove(currentPlayer->secondName, checkForWhiteSpace,
               checkForDigit - checkForWhiteSpace - 1);
@@ -88,12 +88,13 @@ struct Node *parseData(char *data, uint *totalTeams) {
 int* parseReq(char *req) {
     assert(req != NULL);
     static int requirements[5] = {};
-    char *p = strtok(req, " ");
+    char *p = req;
     int i = 0;
-    while (p && i < 5) {
+    requirements[i++] = atoi(p);
+    while (*p++ && i < 5) {
+        if (*p == ' ') continue;
         requirements[i] = atoi(p);
         i++;
-        p = strtok(NULL, " ");
     }
 
     /* for (int i = 0; i < 5; i++) { */

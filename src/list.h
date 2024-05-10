@@ -8,3 +8,4 @@ int addToList(struct Node **head, void *data, size_t);
 void popFromList(struct Node **head, struct Node *item);
 void removeFromList(struct Node **head, struct Node *item);
 void printList(struct Node *head);
+void freeNode(struct Node *);
