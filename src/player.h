@@ -13,10 +13,5 @@ struct Team {
     uint totalPoints;
 };
 
-struct Match {
-    struct Team *teamOne;
-    struct Team *teamTwo;
-};
-
 void freePlayer(void *);
 void freeTeam(void *);
