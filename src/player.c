@@ -17,7 +17,6 @@ void freeTeam(void *team) {
     if (team) {
         struct Team *teamToFree = team;
         if (teamToFree->name) {
-            puts(teamToFree->name);
             free(teamToFree->name);
         }
         if (teamToFree->players) {

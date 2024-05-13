@@ -42,6 +42,11 @@ struct Node *parseData(char *data, uint *totalTeams) {
       int titleLength = strlen(p + positionsToJump) + 1;
       newTeam->name = calloc(sizeof(char), titleLength);
       memmove(newTeam->name, p + positionsToJump, titleLength);
+      // ... pt un motiv sau altul unele nume de echipe au spatiu la final ce fac
+      // checker sa dea fail la test...
+      if (newTeam->name[strlen(newTeam->name) - 1] == ' ') {
+        newTeam->name[strlen(newTeam->name) - 1] = '\0';
+      }
 
       int status = addToList(&teams, newTeam, sizeof(struct Team));
       assert(status == 0);
@@ -112,7 +117,7 @@ void debug_printTeams(struct Node *teams) {
   struct Team *currentTeam = (struct Team *)teams->data;
   assert(currentTeam != NULL);
   assert(currentTeam->name != NULL);
-  puts(currentTeam->name);
+  printf("%s %d\n", currentTeam->name, currentTeam->totalPoints);
   assert(currentTeam->players != NULL);
   for (int i = 0; i < currentTeam->teamSize; i++) {
     struct Player currentPlayer = currentTeam->players[i];

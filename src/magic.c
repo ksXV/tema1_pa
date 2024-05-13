@@ -64,28 +64,32 @@ void startMatches(struct Node *teams, FILE *output) {
     struct Stack *losers = calloc(1, sizeof(struct Stack));
     assert(winners != NULL && losers != NULL);
     int roundNumber = 1;
+    bool shouldPrintRoundNumber = true;
     while (1) {
-        fprintf(output, "\n--- ROUND NO:%d\n", roundNumber);
         while (!isQueueEmpty(&queue)) { 
             struct Node *possibleTeamOne = dequeue(&queue);
             assert(possibleTeamOne != NULL);
             struct Team *firstTeam = possibleTeamOne->data;
-
             struct Node *possibleTeamTwo = dequeue(&queue);
             if (possibleTeamTwo == NULL) {
-                /* printf("%s\n", firstTeam->name); */
                 return;
+            } else if (shouldPrintRoundNumber) {
+                fprintf(output, "\n--- ROUND NO:%d\n", roundNumber);
+                shouldPrintRoundNumber = false;
             }
             struct Team *secondTeam = possibleTeamTwo->data;
             assert(firstTeam != NULL && secondTeam != NULL);
-            if ((firstTeam->totalPoints / firstTeam->teamSize) >= (secondTeam->totalPoints / secondTeam->teamSize)) {
+            if ((firstTeam->totalPoints / (float) firstTeam->teamSize) > (secondTeam->totalPoints / (float) secondTeam->teamSize)) {
                 addToStack(winners, firstTeam);
                 addToStack(losers, secondTeam);
-            } else {
+            } else if ((firstTeam->totalPoints / (float) firstTeam->teamSize) < (secondTeam->totalPoints / (float) secondTeam->teamSize)) {
                 addToStack(winners, secondTeam);
                 addToStack(losers, firstTeam);
+            } else {
+                addToStack(losers, firstTeam);
+                addToStack(winners, secondTeam);
             }
-            fprintf(output, "%s - %s\n", firstTeam->name, secondTeam->name);
+            fprintf(output, "%-32s -%33s\n", firstTeam->name, secondTeam->name);
         }
         fprintf(output, "\nWINNERS OF ROUND NO:%d\n", roundNumber);
         while (!isStackEmpty(winners)) {
@@ -94,15 +98,13 @@ void startMatches(struct Node *teams, FILE *output) {
             struct Team *winnerTeam = winner->data;
             assert (winnerTeam != NULL);
             float points = winnerTeam->totalPoints / (float) winnerTeam->teamSize;
-            fprintf(output, "%s - %.2f\n", winnerTeam->name, points + 1.00);
+            fprintf(output, "%-33s -  %.2f\n", winnerTeam->name, points + 1.00);
             winnerTeam->totalPoints += winnerTeam->teamSize;
             enqueue(&queue, winnerTeam, 0);
         }
         deleteStack(losers, freeTeam);
-        putchar('\n');
-        printf("%p\n", losers->top);
-        putchar('\n');
         roundNumber++;
+        shouldPrintRoundNumber = true;
     }
 }
 
@@ -111,7 +113,7 @@ void writeTeamsToOutput(struct Node *teams, FILE *output) {
     if (teams == NULL) {
         return;
     } 
-    struct Team *currentTeam = (struct Team *) teams->data;
+    struct Team *currentTeam = teams->data;
     fprintf(output, "%s\n", currentTeam->name);
     writeTeamsToOutput(teams->next, output);
 }
@@ -121,10 +123,10 @@ void eliminateTeamsFromList(struct Node **teams, uint totalTeams) {
     assert(*teams != NULL);
 
     int teamsToEliminate = 1;
-    while (teamsToEliminate < totalTeams) teamsToEliminate *= 2;
+    while (teamsToEliminate <= totalTeams) teamsToEliminate *= 2;
     teamsToEliminate = teamsToEliminate / 2;
 
-    while (totalTeams != teamsToEliminate) {
+    while (totalTeams > teamsToEliminate) {
         assert((*teams)->next != NULL);
         assert((*teams)->data != NULL);
 

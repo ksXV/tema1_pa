@@ -40,16 +40,17 @@ struct Node *removeFromStack(struct Stack *stack) {
     return nodeToRemove;
 }
 
-void deleteNodesFromStack(struct Node *node, void (*freeItem)(void *data)) {
-    if (node == NULL) {
+void deleteNodesFromStack(struct Node **node, void (*freeItem)(void *data)) {
+    if (node == NULL || *node == NULL) {
         return;
     }
 
-    freeItem(node->data);
-    deleteNodesFromStack(node->next, freeItem);
-    free(node);
+    freeItem((*node)->data);
+    deleteNodesFromStack(&(*node)->next, freeItem);
+    free(*node);
+    *node = NULL;
 }
 
 void deleteStack(struct Stack *stack, void (*freeItem)(void *data)) {
-    deleteNodesFromStack(stack->top, freeItem);
+    deleteNodesFromStack(&stack->top, freeItem);
 }

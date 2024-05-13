@@ -28,11 +28,18 @@ bool isQueueEmpty(struct Queue *queue) {
 struct Node *dequeue(struct Queue *q) {
     assert(q != NULL); 
     struct Node* nodeToDequeue = q->head;
+
     if (q->head == NULL) {
         q->tail = NULL;
         return NULL;
     }
+
     q->head = q->head->next;
+
+    //it may slip that the tail might not become null;
+    if (q->head == NULL) {
+        q->tail = NULL;
+    }
 
     return nodeToDequeue;
 };
