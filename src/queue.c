@@ -6,7 +6,7 @@
 #include "list.h"
 #include "player.h"
 
-void enqueue(struct Queue *q, void *data, size_t dataLength) {
+void enqueue(struct Queue *q, void *data) {
     assert(q != NULL); 
     struct Node *newNode = calloc(1, sizeof(struct Node));
     assert(newNode != NULL);

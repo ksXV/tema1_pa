@@ -5,6 +5,6 @@ struct Queue {
     struct Node *tail;
 };
 
-void enqueue(struct Queue *, void *, size_t);
+void enqueue(struct Queue *, void *);
 struct Node *dequeue(struct Queue *);
 bool isQueueEmpty(struct Queue *);

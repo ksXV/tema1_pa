@@ -1,10 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -g -fsanitize=address -O1
+CFLAGS = -Wall -g -O1
+DEBUG = -fsanitize=address
 TARGET = lanParty
 all: final
 
 test: clean final
-	./$(TARGET) ./date/t8/c.in ./date/t8/d.in ./result.out
+	./$(TARGET) ./date/t10/c.in ./date/t10/d.in ./result.out
 
 final: 
 	$(CC) $(CFLAGS) -o $(TARGET) $(shell find . -name '*.c')

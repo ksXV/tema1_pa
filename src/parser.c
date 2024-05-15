@@ -18,6 +18,7 @@ struct Node *parseData(char *data, uint *totalTeams) {
   *totalTeams = atoi(p);
 
   int playerIndex = 0;
+  uint teamsParsed = 0;
 
   struct Node *teams = NULL;
 
@@ -50,7 +51,7 @@ struct Node *parseData(char *data, uint *totalTeams) {
 
       int status = addToList(&teams, newTeam, sizeof(struct Team));
       assert(status == 0);
-
+      teamsParsed++;
       goto getNextLine;
     } else {
       assert(teams->data != NULL);
@@ -86,6 +87,16 @@ struct Node *parseData(char *data, uint *totalTeams) {
     p = strtok(NULL, END_OF_LINE_WINDOWS);
   }
   /* debug_printTeams(teams); */
+
+  while (teamsParsed > *totalTeams) {
+      struct Node *curent = teams;
+      assert(teams != NULL);
+      teams = teams->next;
+      freeTeam(curent->data);
+      free(curent);
+      curent = NULL;
+      teamsParsed--;
+  }
 
   return teams;
 }
