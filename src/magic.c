@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "list.h"
 #include "player.h"
 #include "stack.h"
 #include "bst.h"
+#include "avl.h"
 
 struct TeamToBeElimated {
     struct Node* teamToBeElimated;
@@ -15,6 +17,7 @@ void writeTeamsToOutput(struct Node *teams, FILE *output);
 void eliminateTeamsFromList(struct Node **teams, uint totalTeams); 
 void startMatches(struct Node *teams, FILE *output, struct Queue *topEightTeams);
 void makeTopEightRanking(struct Queue *topEightTeams, FILE *output);
+void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output);
 
 void handleRequirements(struct Node* teams, int *req, FILE *output, uint totalTeams) {
     assert(teams != NULL);
@@ -23,7 +26,12 @@ void handleRequirements(struct Node* teams, int *req, FILE *output, uint totalTe
     assert(totalTeams != 0);
 
     if (req[4]) {
-
+        struct Queue topEightTeams = {.head = NULL, .tail = NULL};
+        eliminateTeamsFromList(&teams, totalTeams);
+        writeTeamsToOutput(teams, output);
+        startMatches(teams, output, &topEightTeams);
+        makeTopEightRanking(&topEightTeams, output);
+        getSecondLevelRanking(&topEightTeams, output);
         return;
     }
 
@@ -33,7 +41,6 @@ void handleRequirements(struct Node* teams, int *req, FILE *output, uint totalTe
         writeTeamsToOutput(teams, output);
         startMatches(teams, output, &topEightTeams);
         makeTopEightRanking(&topEightTeams, output);
-
         return;
     }
 
@@ -67,17 +74,70 @@ void DFSPostOrder(struct BNode *node, FILE *output) {
     fprintf(output, "%-33s -  %.2f\n", team->name, points + 1);
     DFSPostOrder(node->left, output);
 }
+void DFSPostOrderAVL(struct AVLNode *node, FILE *output) {
+    assert(output != NULL);
+    if (node == NULL) return;
 
-void makeTopEightRanking(struct Queue *topEightTeams, FILE *output) {
+    DFSPostOrderAVL(node->right, output);
+    struct Team *team = node->data;
+    assert(team != NULL);
+    fprintf(output, "%s %d\n", team->name, node->height);
+    
+    DFSPostOrderAVL(node->left, output);
+}
+
+bool howToInsert(void *node, void *nodeToAdd) {
+    struct AVLNode *curentNode = node;
+    struct AVLNode *nodeToAddAvl = nodeToAdd;
+    if (nodeToAddAvl->points > curentNode->points) {
+        return true;
+    } else if (nodeToAddAvl->points == curentNode->points) {
+        struct Team *newTeam = nodeToAddAvl->data;
+        struct Team *teamToCompare = curentNode->data;
+        if (strcmp(newTeam->name, teamToCompare->name) < 0) {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
+
+}
+void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output) {
     assert(topEightTeams != NULL);
     assert(output != NULL);
-    struct BST tree = {.head = NULL};
+    struct Node *curent = topEightTeams->head;
+    while (curent) {
+        
+
+        curent = curent->next;
+    }
+    struct AVL tree = {.head = NULL, .fn = howToInsert};
     while (!isQueueEmpty(topEightTeams)) { 
         struct Node *teamNode = dequeue(topEightTeams);
         assert(teamNode != NULL);
         struct Team *team = teamNode->data;
         assert(team != NULL);
+        tree.head = addToAVL(&tree, team);
+    }
+
+    fprintf(output, "\nTHE LEVEL 2 TEAMS ARE:\n");
+    DFSPostOrderAVL(tree.head, output);
+}
+void makeTopEightRanking(struct Queue *topEightTeams, FILE *output) {
+    assert(topEightTeams != NULL);
+    assert(output != NULL);
+    struct BST tree = {.head = NULL};
+    int idx = 0;
+    while (8 > idx) { 
+        struct Node *teamNode = dequeue(topEightTeams);
+        assert(teamNode != NULL);
+        struct Team *team = teamNode->data;
+        assert(team != NULL);
         addToBST(&tree, team, team->totalPoints);
+        enqueue(topEightTeams, team);
+        idx++;
     }
 
     fprintf(output, "\nTOP 8 TEAMS:\n");
