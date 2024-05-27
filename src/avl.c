@@ -1,9 +1,10 @@
+#include "avl.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "avl.h"
+#include "player.h"
 
 int height(struct AVLNode *N) { 
     if (N == NULL) 
@@ -11,7 +12,7 @@ int height(struct AVLNode *N) {
     return N->height; 
 } 
 
-int max(int a, int b) { 
+int max(uint a, uint b) { 
     return a > b ? a : b; 
 } 
 
@@ -66,7 +67,7 @@ struct AVLNode *insert(struct AVLNode *node, struct AVLNode *nodeToAdd, itemComp
   
     int balance = getBalance(node); 
   
-    if (balance > 1 && cmp(nodeToAdd->data, node->data))
+    if (balance > 1 && cmp(nodeToAdd->data, node->left->data))
         return rightRotate(node); 
   
     if (balance < -1 && !cmp(nodeToAdd->data, node->right->data))
@@ -85,31 +86,6 @@ struct AVLNode *insert(struct AVLNode *node, struct AVLNode *nodeToAdd, itemComp
     return node; 
 } 
 
-
-int getTheAVLHeight(struct AVLNode *node) {
-    int hl,hr;
-    if (node == NULL) return 0;
-    hl = getTheAVLHeight(node->left);
-    hr = getTheAVLHeight(node->right);
-
-    return 1+((hl>hr)? hl:hr);
-}
-
-int idx = 0;
-void getFirstThreeTeams(struct AVLNode *node, FILE *output, printTheTeams fn) {
-    if (node->left != NULL) {
-        if (getTheAVLHeight(node->left) == 1) idx++;
-        getFirstThreeTeams(node->left, output, fn);
-    }
-    if (getTheAVLHeight(node) == 1 && idx < 4){
-        fn(output, node->data);
-    }
-    if (node->right != NULL){
-        if (getTheAVLHeight(node->right) == 1) idx++;   
-        getFirstThreeTeams(node->right, output, fn);
-    }
-}
-
 struct AVLNode *addToAVL(struct AVL *avl, void *data) {
     assert(avl != NULL);
     assert(data != NULL);
@@ -120,5 +96,8 @@ struct AVLNode *addToAVL(struct AVL *avl, void *data) {
     newNode->data = data;
     newNode->height = 1;
 
+    if (avl->head == NULL) {
+        return newNode;
+    }
     return insert(avl->head, newNode, avl->fn);
 }

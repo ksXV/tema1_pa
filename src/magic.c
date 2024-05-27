@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "bst.h"
 #include "avl.h"
+#define GET_TEAM(DATA) ((struct Team *) DATA)
 
 struct TeamToBeElimated {
     struct Node* teamToBeElimated;
@@ -75,35 +76,45 @@ void DFSPostOrder(struct BNode *node, FILE *output) {
     DFSPostOrder(node->left, output);
 }
 
-
-bool howToInsert(void *node, void *nodeToAdd) {
-    struct Team *curentNode = node;
-    struct Team *nodeToAddAvl = nodeToAdd;
-    return nodeToAddAvl->totalPoints < curentNode->totalPoints;
-}
-
-void getLastTeam(struct AVLNode *node, int level, FILE *output) {
-    level++;
-    if (node->right!= NULL) {
-        getLastTeam(node->right, level, output);
-        if (level == 3) {
-            struct Team *team = node->data;
-            fprintf(output, "%s\n", team->name);
-            return;
+void BFS(struct AVLNode *node, FILE *output, struct Team* teamsToOutput[4]) {
+    struct Queue q = {.head = NULL, .tail = NULL};
+    enqueue(&q, node);
+    int idx = 0;
+    while (!isQueueEmpty(&q)) {
+        struct Node *foo = dequeue(&q);
+        struct AVLNode *t = foo->data;
+        if (idx < 3) {
+            teamsToOutput[idx++] = GET_TEAM(t->data);
+        } else if (isQueueEmpty(&q)) {
+            teamsToOutput[idx] = GET_TEAM(t->data);
+        }
+        if (t->left) {
+            enqueue(&q, t->left);
+        }
+        if (t->right) {
+            enqueue(&q, t->right);
         }
     }
 }
 
-void howToPrintTeams(FILE *output, void *data) {
-    assert(data != NULL);
-    struct Team *team = data;
-    fprintf(output, "%s\n", team->name); 
-
+bool howToInsert(void *nodeOne, void *nodeTwo) {
+    struct Team *teamOne = nodeOne;
+    struct Team *teamTwo = nodeTwo;
+    if (teamOne->totalPoints != teamTwo->totalPoints) {
+        return teamOne->totalPoints > teamTwo->totalPoints;
+    } else {
+        return strcmp(teamOne->name, teamTwo->name) > 0;
+    }
 }
 
-void printTeams(struct AVL *avl, FILE *output) {
-    getFirstThreeTeams(avl->head, output, howToPrintTeams);
-    getLastTeam(avl->head, 0, output);
+int howToSort(const void *nodeOne, const void *nodeTwo) {
+    const struct Team *teamOne = *(const void **)nodeOne;
+    const struct Team *teamTwo = *(const void **)nodeTwo;
+    if (teamOne->totalPoints != teamTwo->totalPoints) {
+        return teamOne->totalPoints - teamTwo->totalPoints;
+    } else {
+        return strcmp(teamOne->name, teamTwo->name);
+    }
 }
 
 void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output) {
@@ -114,42 +125,29 @@ void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output) {
         curent = curent->next;
     }
     struct AVL tree = {.head = NULL, .fn = howToInsert};
-    struct Team *teams[8] = {};
-    int idxTeams = 0;
+    int idx = 0;
+    struct Team *foo[8];
     while (!isQueueEmpty(topEightTeams)) { 
         struct Node *teamNode = dequeue(topEightTeams);
         assert(teamNode != NULL);
         struct Team *team = teamNode->data;
         assert(team != NULL);
-        team->totalPoints *= 10;
-        teams[idxTeams++] = team;
+        foo[idx++] = team;
     }
+    qsort(foo, 8, sizeof(struct Team *), howToSort);
 
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            if (teams[i]->totalPoints > teams[j]->totalPoints) {
-                struct Team *aux = teams[i];
-                teams[i] = teams[j];
-                teams[j] = aux;
-            } else if (teams[i]->totalPoints == teams[j]->totalPoints && strcmp(teams[i]->name, teams[j]->name) > 0) {
-                struct Team *aux = teams[i];
-                teams[i] = teams[j];
-                teams[j] = aux;
-            }
-        }
-    }
-
-    int pointsToSubtract = 8;
-    for (idxTeams = 0; idxTeams < 8; idxTeams++) {
-        if (idxTeams + 1 < 8 && teams[idxTeams]->totalPoints == teams[idxTeams + 1]->totalPoints) {
-            teams[idxTeams]->totalPoints += pointsToSubtract;
-            pointsToSubtract--;
-        }
-        tree.head = addToAVL(&tree, teams[idxTeams]);
+        tree.head = addToAVL(&tree, foo[i]);
     }
 
     fprintf(output, "\nTHE LEVEL 2 TEAMS ARE:\n");
-    printTeams(&tree, output);
+    struct Team* teamsToOutput[4];
+    BFS(tree.head, output, teamsToOutput);
+
+    fprintf(output, "%s\n", teamsToOutput[3]->name);
+    fprintf(output, "%s\n", teamsToOutput[1]->name);
+    fprintf(output, "%s\n", teamsToOutput[0]->name);
+    fprintf(output, "%s\n", teamsToOutput[2]->name);
 }
 void makeTopEightRanking(struct Queue *topEightTeams, FILE *output) {
     assert(topEightTeams != NULL);

@@ -5,7 +5,7 @@ TARGET = lanParty
 all: final
 
 test: clean final
-	./$(TARGET) ./date/t14/c.in ./date/t14/d.in ./result.out
+	./$(TARGET) ./date/t$(TESTNUMBER)/c.in ./date/t$(TESTNUMBER)/d.in ./result$(TESTNUMBER).out
 
 final: 
 	$(CC) $(CFLAGS) -o $(TARGET) $(shell find . -name '*.c')
