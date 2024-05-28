@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "bst.h"
 #include "avl.h"
+
 #define GET_TEAM(DATA) ((struct Team *) DATA)
 
 struct TeamToBeElimated {
@@ -19,6 +20,17 @@ void eliminateTeamsFromList(struct Node **teams, uint totalTeams);
 void startMatches(struct Node *teams, FILE *output, struct Queue *topEightTeams);
 void makeTopEightRanking(struct Queue *topEightTeams, FILE *output);
 void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output);
+
+void freeTeams(struct Node *teams) {
+    assert(teams != NULL);
+    struct Node *curent = teams;
+    while (curent) {
+        struct Node *aux = curent;
+        curent = curent->next;
+        freeTeam(aux->data);
+        free(aux);
+    }
+}
 
 void handleRequirements(struct Node* teams, int *req, FILE *output, uint totalTeams) {
     assert(teams != NULL);
@@ -55,11 +67,13 @@ void handleRequirements(struct Node* teams, int *req, FILE *output, uint totalTe
     if (req[1]) {
         eliminateTeamsFromList(&teams, totalTeams);
         writeTeamsToOutput(teams, output);
+        freeTeams(teams);
         return;
     }
 
     if (req[0]) {
         writeTeamsToOutput(teams, output);
+        freeTeams(teams);
         return;
     }
 }
@@ -74,6 +88,7 @@ void DFSPostOrder(struct BNode *node, FILE *output) {
     float points = team->totalPoints / (float) team->teamSize;
     fprintf(output, "%-33s -  %.2f\n", team->name, points + 1);
     DFSPostOrder(node->left, output);
+    free(node);
 }
 
 void BFS(struct AVLNode *node, FILE *output, struct Team* teamsToOutput[4]) {
@@ -87,6 +102,7 @@ void BFS(struct AVLNode *node, FILE *output, struct Team* teamsToOutput[4]) {
             teamsToOutput[idx++] = GET_TEAM(t->data);
         } else if (isQueueEmpty(&q)) {
             teamsToOutput[idx] = GET_TEAM(t->data);
+            return;
         }
         if (t->left) {
             enqueue(&q, t->left);
@@ -94,6 +110,8 @@ void BFS(struct AVLNode *node, FILE *output, struct Team* teamsToOutput[4]) {
         if (t->right) {
             enqueue(&q, t->right);
         }
+        free(foo);
+        free(t);
     }
 }
 
@@ -149,6 +167,7 @@ void getSecondLevelRanking(struct Queue *topEightTeams, FILE *output) {
     fprintf(output, "%s\n", teamsToOutput[0]->name);
     fprintf(output, "%s\n", teamsToOutput[2]->name);
 }
+
 void makeTopEightRanking(struct Queue *topEightTeams, FILE *output) {
     assert(topEightTeams != NULL);
     assert(output != NULL);
@@ -161,6 +180,7 @@ void makeTopEightRanking(struct Queue *topEightTeams, FILE *output) {
         assert(team != NULL);
         addToBST(&tree, team, team->totalPoints);
         enqueue(topEightTeams, team);
+        free(teamNode);
         idx++;
     }
 
@@ -175,7 +195,7 @@ void startMatches(struct Node *teams, FILE *output, struct Queue *topEightTeams)
     struct Node *curent = teams;
     struct Queue queue = {.head = NULL, .tail = NULL};
 
-    while(curent && curent->next) {
+    while (curent && curent->next) {
         enqueue(&queue,curent->data);
         enqueue(&queue, curent->next->data);
         curent = curent->next->next;
@@ -190,14 +210,17 @@ void startMatches(struct Node *teams, FILE *output, struct Queue *topEightTeams)
             struct Node *possibleTeamOne = dequeue(&queue);
             assert(possibleTeamOne != NULL);
             struct Team *firstTeam = possibleTeamOne->data;
+            free(possibleTeamOne);
             struct Node *possibleTeamTwo = dequeue(&queue);
             if (possibleTeamTwo == NULL) {
+                freeTeam(firstTeam);
                 return;
             } else if (shouldPrintRoundNumber) {
                 fprintf(output, "\n--- ROUND NO:%d\n", roundNumber);
                 shouldPrintRoundNumber = false;
             }
             struct Team *secondTeam = possibleTeamTwo->data;
+            free(possibleTeamTwo);
             assert(firstTeam != NULL && secondTeam != NULL);
             if ((firstTeam->totalPoints / (float) firstTeam->teamSize) > (secondTeam->totalPoints / (float) secondTeam->teamSize)) {
                 addToStack(&winners, firstTeam);
@@ -222,6 +245,7 @@ void startMatches(struct Node *teams, FILE *output, struct Queue *topEightTeams)
             struct Node *winner = removeFromStack(&winners);
             assert(winner != NULL);
             struct Team *winnerTeam = winner->data;
+            free(winner);
             assert (winnerTeam != NULL);
             float points = winnerTeam->totalPoints / (float) winnerTeam->teamSize;
             fprintf(output, "%-33s -  %.2f\n", winnerTeam->name, points + 1.00);

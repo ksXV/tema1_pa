@@ -43,8 +43,6 @@ struct Node *parseData(char *data, uint *totalTeams) {
       int titleLength = strlen(p + positionsToJump) + 1;
       newTeam->name = calloc(sizeof(char), titleLength);
       memmove(newTeam->name, p + positionsToJump, titleLength);
-      // ... pt un motiv sau altul unele nume de echipe au spatiu la final ce fac
-      // checker sa dea fail la test...
       if (newTeam->name[strlen(newTeam->name) - 1] == ' ') {
         newTeam->name[strlen(newTeam->name) - 1] = '\0';
       }

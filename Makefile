@@ -1,6 +1,5 @@
 CC = gcc
 CFLAGS = -Wall -g -O1
-DEBUG = -fsanitize=address
 TARGET = lanParty
 all: final
 
